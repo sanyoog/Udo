@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Topbar } from '../components/Topbar';
 import { api } from '../api';
-import { Kanban, Clock } from 'lucide-react';
+import { Kanban, Clock, Timer, Calendar } from 'lucide-react';
 
 export function Dashboard() {
   const [pages, setPages] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [timerStats, setTimerStats] = useState(null);
+  const [countdownStats, setCountdownStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,13 +16,17 @@ export function Dashboard() {
 
   const loadData = async () => {
     try {
-      const [pagesRes, tasksRes] = await Promise.all([
+      const [pagesRes, tasksRes, timerRes, countdownRes] = await Promise.all([
         api.getPages(),
-        api.getAllTasks()
+        api.getAllTasks(),
+        fetch('/api/timer/stats').then(r => r.json()).catch(() => null),
+        fetch('/api/countdown/stats').then(r => r.json()).catch(() => null)
       ]);
       
       if (pagesRes.success) setPages(pagesRes.pages);
       if (tasksRes.success) setTasks(tasksRes.tasks);
+      setTimerStats(timerRes);
+      setCountdownStats(countdownRes);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -43,12 +49,21 @@ export function Dashboard() {
     };
   };
 
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hrs > 0) {
+      return `${hrs}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
   if (loading) {
     return (
       <div className="flex-1 flex flex-col">
         <Topbar title="Dashboard" />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground animate-fade-in">Loading...</div>
         </div>
       </div>
     );
@@ -87,7 +102,7 @@ export function Dashboard() {
           </div>
 
           {statusCounts.overdue > 0 && (
-            <div className="card p-6 border-red-200 bg-red-50">
+            <div className="card p-6 border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 animate-fade-in-up">
               <div className="flex items-center gap-3">
                 <Clock className="w-5 h-5 text-red-600" />
                 <div>
@@ -99,6 +114,74 @@ export function Dashboard() {
               </div>
             </div>
           )}
+
+          {/* Timer & Countdown Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Timer Stats */}
+            {timerStats && (
+              <div className="card p-6 animate-fade-in-up stagger-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <Timer className="w-6 h-6 text-blue-500" />
+                  <h3 className="text-lg font-semibold">Study Timer Stats</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Sessions</span>
+                    <span className="font-semibold">{timerStats.totalSessions}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Time</span>
+                    <span className="font-semibold">{formatTime(timerStats.totalTime)}</span>
+                  </div>
+                  {timerStats.recentSessions && timerStats.recentSessions.length > 0 && (
+                    <div className="pt-3 border-t dark:border-gray-800">
+                      <div className="text-sm text-muted-foreground mb-2">Recent Sessions</div>
+                      <div className="space-y-1">
+                        {timerStats.recentSessions.slice(0, 3).map((session, i) => (
+                          <div key={i} className="text-sm flex justify-between">
+                            <span className="text-muted-foreground">
+                              {new Date(session.startTime).toLocaleDateString()}
+                            </span>
+                            <span>{formatTime(session.duration)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Countdown Stats */}
+            {countdownStats && (
+              <div className="card p-6 animate-fade-in-up stagger-2">
+                <div className="flex items-center gap-3 mb-4">
+                  <Calendar className="w-6 h-6 text-purple-500" />
+                  <h3 className="text-lg font-semibold">Upcoming Events</h3>
+                </div>
+                {countdownStats.upcomingEvents && countdownStats.upcomingEvents.length > 0 ? (
+                  <div className="space-y-3">
+                    {countdownStats.upcomingEvents.slice(0, 3).map((event, i) => (
+                      <div key={i} className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="font-medium">{event.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {event.daysLeft} day{event.daysLeft !== 1 ? 's' : ''} left
+                          </div>
+                        </div>
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: event.color }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No upcoming events</p>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Pages Overview */}
           <div>

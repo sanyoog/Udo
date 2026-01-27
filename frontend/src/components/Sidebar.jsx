@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Kanban, Settings, Plus, ChevronLeft, ChevronRight, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Kanban, Settings, Plus, ChevronLeft, ChevronRight, Moon, Sun, Timer, Calendar } from 'lucide-react';
 import { Modal } from './Modal';
 import { api } from '../api';
 
@@ -92,6 +92,26 @@ export function Sidebar({ pages, onPagesUpdate, collapsed, onToggleCollapse, the
           >
             <Kanban className="w-5 h-5" />
             <span className="font-medium">All Tasks</span>
+          </Link>
+
+          <Link
+            to="/timer"
+            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+              isActive('/timer') ? 'bg-secondary' : 'hover:bg-secondary/50'
+            }`}
+          >
+            <Timer className="w-5 h-5" />
+            <span className="font-medium">Study Timer</span>
+          </Link>
+
+          <Link
+            to="/countdown"
+            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+              isActive('/countdown') ? 'bg-secondary' : 'hover:bg-secondary/50'
+            }`}
+          >
+            <Calendar className="w-5 h-5" />
+            <span className="font-medium">Countdown</span>
           </Link>
 
           <Link

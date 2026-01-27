@@ -5,6 +5,8 @@ import { Dashboard } from './pages/Dashboard';
 import { AllTasks } from './pages/AllTasks';
 import { Settings } from './pages/Settings';
 import { PageBoard } from './pages/PageBoard';
+import StudyTimer from './pages/StudyTimer';
+import Countdown from './pages/Countdown';
 import { api } from './api';
 
 function App() {
@@ -76,6 +78,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/all-tasks" element={<AllTasks />} />
+          <Route path="/timer" element={<StudyTimer />} />
+          <Route path="/countdown" element={<Countdown />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/page/:pageId" element={<PageBoard />} />
         </Routes>
