@@ -134,6 +134,23 @@
     @apply text-7xl font-bold font-mono bg-secondary rounded-lg px-4 py-2 min-w-[5rem] flex items-center justify-center;
     animation: digitSlide 0.3s ease-out;
   }
+
+  /* Dark mode badge text fix */
+  body.dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+  }
+
+  body.dark .text-blue-700 {
+    color: rgb(147, 197, 253) !important;
+  }
+
+  body.dark .bg-green-100 {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+  }
+
+  body.dark .text-green-700 {
+    color: rgb(134, 239, 172) !important;
+  }
   
   .stagger-1 { animation-delay: 0.1s; }
   .stagger-2 { animation-delay: 0.2s; }

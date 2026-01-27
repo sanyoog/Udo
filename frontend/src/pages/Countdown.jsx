@@ -71,16 +71,21 @@ const Countdown = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingEvent) {
-      updateEvent(editingEvent.id, formData);
-      setEditingEvent(null);
-    } else {
-      createEvent(formData);
+    try {
+      if (editingEvent) {
+        await updateEvent(editingEvent.id, formData);
+        setEditingEvent(null);
+      } else {
+        await createEvent(formData);
+      }
+      setFormData({ name: '', targetDate: '', description: '', color: '#3B82F6' });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Failed to submit event:', error);
+      alert('Failed to save event. Please try again.');
     }
-    setFormData({ name: '', targetDate: '', description: '', color: '#3B82F6' });
-    setShowAddModal(false);
   };
 
   const handleEdit = (event) => {
@@ -95,30 +100,35 @@ const Countdown = () => {
   };
 
   const calculateTimeLeft = (targetDate, eventId) => {
-    const target = new Date(targetDate);
-    const diff = target - currentTime;
+    try {
+      const target = new Date(targetDate);
+      const diff = target - currentTime;
 
-    if (diff <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true };
+      if (diff <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true };
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      // Track changes for animation
+      const prev = prevTimes[eventId] || {};
+      const changed = {
+        days: prev.days !== days,
+        hours: prev.hours !== hours,
+        minutes: prev.minutes !== minutes,
+        seconds: prev.seconds !== seconds
+      };
+
+      setPrevTimes(p => ({ ...p, [eventId]: { days, hours, minutes, seconds } }));
+
+      return { days, hours, minutes, seconds, isPast: false, changed };
+    } catch (error) {
+      console.error('Error calculating time:', error);
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false, changed: {} };
     }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    // Track changes for animation
-    const prev = prevTimes[eventId] || {};
-    const changed = {
-      days: prev.days !== days,
-      hours: prev.hours !== hours,
-      minutes: prev.minutes !== minutes,
-      seconds: prev.seconds !== seconds
-    };
-
-    setPrevTimes(p => ({ ...p, [eventId]: { days, hours, minutes, seconds } }));
-
-    return { days, hours, minutes, seconds, isPast: false, changed };
   };
 
   const formatDate = (isoString) => {

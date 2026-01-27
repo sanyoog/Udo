@@ -7,6 +7,8 @@ const StudyTimer = () => {
   const [sessions, setSessions] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(true);
+  const [displayTime, setDisplayTime] = useState(0);
+  const [timerStatus, setTimerStatus] = useState({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
   
   // Pomodoro settings
   const [pomodoroSettings, setPomodoroSettings] = useState({
@@ -24,7 +26,7 @@ const StudyTimer = () => {
     
     // Update timer every second
     const interval = setInterval(() => {
-      updateTimer();
+      updateTimerDisplay();
     }, 1000);
     
     return () => clearInterval(interval);
@@ -128,9 +130,28 @@ const StudyTimer = () => {
     localStorage.setItem('udo_timer_state', JSON.stringify(state));
   };
 
-  const updateTimer = () => {
+  const updateTimerDisplay = () => {
     const state = getTimerState();
-    if (!state || !state.isRunning) return;
+    if (!state) {
+      setDisplayTime(mode === 'pomodoro' ? pomodoroSettings.studyTime * 60 : 0);
+      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
+      return;
+    }
+
+    setTimerStatus({
+      isRunning: state.isRunning || false,
+      pomodoroState: state.pomodoroState || 'study',
+      sessionCount: state.sessionCount || 0
+    });
+
+    if (!state.isRunning) {
+      if (state.mode === 'pomodoro') {
+        setDisplayTime(state.timeLeft || pomodoroSettings.studyTime * 60);
+      } else {
+        setDisplayTime(state.elapsed || 0);
+      }
+      return;
+    }
 
     const now = Date.now();
     const elapsed = Math.floor((now - state.lastUpdate) / 1000);
@@ -139,6 +160,8 @@ const StudyTimer = () => {
 
     if (state.mode === 'pomodoro') {
       const newTimeLeft = Math.max(0, state.timeLeft - elapsed);
+      setDisplayTime(newTimeLeft);
+      
       setTimerState({
         ...state,
         timeLeft: newTimeLeft,
@@ -146,13 +169,15 @@ const StudyTimer = () => {
       });
 
       if (newTimeLeft === 0) {
-        // Timer complete
         handlePomodoroComplete(state);
       }
     } else if (state.mode === 'stopwatch') {
+      const newElapsed = state.elapsed + elapsed;
+      setDisplayTime(newElapsed);
+      
       setTimerState({
         ...state,
-        elapsed: state.elapsed + elapsed,
+        elapsed: newElapsed,
         lastUpdate: now
       });
     }
@@ -190,7 +215,7 @@ const StudyTimer = () => {
     const now = Date.now();
 
     if (mode === 'pomodoro') {
-      setTimerState({
+      const newState = {
         mode: 'pomodoro',
         isRunning: true,
         timeLeft: state.timeLeft !== undefined ? state.timeLeft : pomodoroSettings.studyTime * 60,
@@ -198,15 +223,19 @@ const StudyTimer = () => {
         sessionCount: state.sessionCount || 0,
         startTime: state.startTime || new Date().toISOString(),
         lastUpdate: now
-      });
+      };
+      setTimerState(newState);
+      setTimerStatus({ isRunning: true, pomodoroState: newState.pomodoroState, sessionCount: newState.sessionCount });
     } else {
-      setTimerState({
+      const newState = {
         mode: 'stopwatch',
         isRunning: true,
         elapsed: state.elapsed || 0,
         startTime: state.startTime || new Date().toISOString(),
         lastUpdate: now
-      });
+      };
+      setTimerState(newState);
+      setTimerStatus({ isRunning: true, pomodoroState: 'study', sessionCount: 0 });
     }
   };
 
@@ -214,6 +243,7 @@ const StudyTimer = () => {
     const state = getTimerState();
     if (state) {
       setTimerState({ ...state, isRunning: false });
+      setTimerStatus({ ...timerStatus, isRunning: false });
     }
   };
 
@@ -242,19 +272,25 @@ const StudyTimer = () => {
     // Reset timer
     localStorage.removeItem('udo_timer_state');
     if (mode === 'pomodoro') {
-      setTimerState({
+      const newState = {
         mode: 'pomodoro',
         isRunning: false,
         timeLeft: pomodoroSettings.studyTime * 60,
         pomodoroState: 'study',
         sessionCount: 0
-      });
+      };
+      setTimerState(newState);
+      setDisplayTime(pomodoroSettings.studyTime * 60);
+      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
     } else {
-      setTimerState({
+      const newState = {
         mode: 'stopwatch',
         isRunning: false,
         elapsed: 0
-      });
+      };
+      setTimerState(newState);
+      setDisplayTime(0);
+      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
     }
   };
 
@@ -267,53 +303,35 @@ const StudyTimer = () => {
     setMode(newMode);
     
     if (newMode === 'pomodoro') {
-      setTimerState({
+      const newState = {
         mode: 'pomodoro',
         isRunning: false,
         timeLeft: pomodoroSettings.studyTime * 60,
         pomodoroState: 'study',
         sessionCount: 0
-      });
+      };
+      setTimerState(newState);
+      setDisplayTime(pomodoroSettings.studyTime * 60);
+      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
     } else {
-      setTimerState({
+      const newState = {
         mode: 'stopwatch',
         isRunning: false,
         elapsed: 0
-      });
+      };
+      setTimerState(newState);
+      setDisplayTime(0);
+      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
     }
   };
 
   // Get current display time
   const getDisplayTime = () => {
-    const state = getTimerState();
-    if (!state) {
-      return mode === 'pomodoro' ? pomodoroSettings.studyTime * 60 : 0;
-    }
-
-    if (state.mode === 'pomodoro') {
-      if (state.isRunning) {
-        const now = Date.now();
-        const elapsed = Math.floor((now - state.lastUpdate) / 1000);
-        return Math.max(0, state.timeLeft - elapsed);
-      }
-      return state.timeLeft;
-    } else {
-      if (state.isRunning) {
-        const now = Date.now();
-        const elapsed = Math.floor((now - state.lastUpdate) / 1000);
-        return state.elapsed + elapsed;
-      }
-      return state.elapsed || 0;
-    }
+    return displayTime;
   };
 
   const getTimerStatus = () => {
-    const state = getTimerState();
-    return {
-      isRunning: state?.isRunning || false,
-      pomodoroState: state?.pomodoroState || 'study',
-      sessionCount: state?.sessionCount || 0
-    };
+    return timerStatus;
   };
 
   const formatTime = (seconds) => {
@@ -347,9 +365,8 @@ const StudyTimer = () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const displayTime = getDisplayTime();
   const timeObj = formatTime(displayTime);
-  const status = getTimerStatus();
+  const status = timerStatus;
 
   return (
     <div className="flex-1 flex flex-col">

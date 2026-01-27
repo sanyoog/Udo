@@ -1,1 +1,12 @@
-{"events": []}
+{
+  "events": [
+    {
+      "name": "Jee April",
+      "targetDate": "2026-05-01T00:00",
+      "description": "",
+      "color": "#8B5CF6",
+      "id": "1",
+      "createdAt": "2026-01-27T14:59:46.495676"
+    }
+  ]
+}
