@@ -1,0 +1,734 @@
+{
+  "id": "jee-preparation-feb-march",
+  "name": "JEE April",
+  "tasks": [
+    {
+      "id": "task-01",
+      "title": "Sets, Relations & Functions",
+      "description": "Complete theory and solve 20-30 PYQs",
+      "tags": [
+        "mathematics",
+        "week1"
+      ],
+      "timestamp": "2026-02-02",
+      "status": "in-progress",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 2
+      }
+    },
+    {
+      "id": "task-02",
+      "title": "PnC + Probability",
+      "description": "Theory, formula revision, and problem practice",
+      "tags": [
+        "mathematics",
+        "week1"
+      ],
+      "timestamp": "2026-02-05",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 3
+      }
+    },
+    {
+      "id": "task-03",
+      "title": "Binomial Theorem",
+      "description": "Complete all types of problems",
+      "tags": [
+        "mathematics",
+        "week2"
+      ],
+      "timestamp": "2026-02-07",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 2
+      }
+    },
+    {
+      "id": "task-04",
+      "title": "Sequences & Series",
+      "description": "AP, GP, HP, AGP and special series",
+      "tags": [
+        "mathematics",
+        "week2"
+      ],
+      "timestamp": "2026-02-10",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 3
+      }
+    },
+    {
+      "id": "task-05",
+      "title": "Statistics",
+      "description": "Mean, median, mode, variance, SD",
+      "tags": [
+        "mathematics",
+        "week2"
+      ],
+      "timestamp": "2026-02-12",
+      "status": "todo",
+      "priority": "medium",
+      "meta": {
+        "focus_required": false,
+        "duration_days": 1
+      }
+    },
+    {
+      "id": "task-06",
+      "title": "Matrices",
+      "description": "Operations, determinants, inverse, applications",
+      "tags": [
+        "mathematics",
+        "week2"
+      ],
+      "timestamp": "2026-02-14",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 2
+      }
+    },
+    {
+      "id": "task-07",
+      "title": "Thermodynamics",
+      "description": "Theory + numericals (laws, cycles, entropy)",
+      "tags": [
+        "chemistry",
+        "week1"
+      ],
+      "timestamp": "2026-02-04",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 4
+      }
+    },
+    {
+      "id": "task-08",
+      "title": "Chemical Equilibrium",
+      "description": "Kp, Kc, Le Chatelier's principle, numericals",
+      "tags": [
+        "chemistry",
+        "week2"
+      ],
+      "timestamp": "2026-02-08",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 4
+      }
+    },
+    {
+      "id": "task-09",
+      "title": "Ionic Equilibrium",
+      "description": "pH, buffer, solubility, common ion effect",
+      "tags": [
+        "chemistry",
+        "week2"
+      ],
+      "timestamp": "2026-02-12",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 4
+      }
+    },
+    {
+      "id": "task-10",
+      "title": "Continuity & Differentiability",
+      "description": "Limits, continuity, differentiation rules",
+      "tags": [
+        "mathematics",
+        "week3"
+      ],
+      "timestamp": "2026-02-17",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 3
+      }
+    },
+    {
+      "id": "task-11",
+      "title": "Application of Derivatives",
+      "description": "Tangent, normal, maxima-minima, ROC",
+      "tags": [
+        "mathematics",
+        "week3"
+      ],
+      "timestamp": "2026-02-20",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 3
+      }
+    },
+    {
+      "id": "task-12",
+      "title": "Area under Curves",
+      "description": "Definite integration applications",
+      "tags": [
+        "mathematics",
+        "week4"
+      ],
+      "timestamp": "2026-02-22",
+      "status": "todo",
+      "priority": "medium",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 2
+      }
+    },
+    {
+      "id": "task-13",
+      "title": "Straight Lines + Circles",
+      "description": "Equations, properties, tangent-normal",
+      "tags": [
+        "mathematics",
+        "week4"
+      ],
+      "timestamp": "2026-02-25",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 3
+      }
+    },
+    {
+      "id": "task-14",
+      "title": "Vectors + 3D Geometry",
+      "description": "Vector algebra, dot/cross product, planes, lines in 3D",
+      "tags": [
+        "mathematics",
+        "week4"
+      ],
+      "timestamp": "2026-02-28",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 3
+      }
+    },
+    {
+      "id": "task-15",
+      "title": "Practical/Inorganic Chemistry",
+      "description": "Salt analysis, qualitative analysis, reactions",
+      "tags": [
+        "chemistry",
+        "week3"
+      ],
+      "timestamp": "2026-02-18",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 4
+      }
+    },
+    {
+      "id": "task-16",
+      "title": "Organic Chemistry Revision",
+      "description": "GOC, hydrocarbons, oxygen/nitrogen compounds, reactions, mechanisms",
+      "tags": [
+        "chemistry",
+        "week3-4",
+        "urgent"
+      ],
+      "timestamp": "2026-02-28",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 10,
+        "notes": "Make reaction flowcharts and one-pagers"
+      }
+    },
+    {
+      "id": "task-17",
+      "title": "Physics Practice (All Chapters)",
+      "description": "30-40 numericals daily, focus on speed and accuracy",
+      "tags": [
+        "physics",
+        "week3-4"
+      ],
+      "timestamp": "2026-02-17",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 13,
+        "daily_target": "30-40 problems"
+      }
+    },
+    {
+      "id": "task-18",
+      "title": "Mathematics Weak Topics Revision",
+      "description": "Quick revision and formula sheets",
+      "tags": [
+        "mathematics",
+        "march-week1",
+        "revision"
+      ],
+      "timestamp": "2026-03-07",
+      "status": "todo",
+      "priority": "medium",
+      "meta": {
+        "focus_required": false,
+        "duration_days": 7
+      }
+    },
+    {
+      "id": "task-19",
+      "title": "Chemistry Final Consolidation",
+      "description": "Organic reactions, inorganic one-pagers, numerical practice",
+      "tags": [
+        "chemistry",
+        "march-week1",
+        "revision"
+      ],
+      "timestamp": "2026-03-07",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 7
+      }
+    },
+    {
+      "id": "task-20",
+      "title": "Physics Intensive Practice",
+      "description": "Increase to 50-60 problems daily, all chapters",
+      "tags": [
+        "physics",
+        "march-week1"
+      ],
+      "timestamp": "2026-03-07",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_days": 7,
+        "daily_target": "50-60 problems"
+      }
+    },
+    {
+      "id": "task-21",
+      "title": "Full-Length Mock Test 1",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week2",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-08",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-22",
+      "title": "Mock Test 1 Analysis",
+      "description": "Detailed error analysis, identify patterns, update error log",
+      "tags": [
+        "analysis",
+        "march-week2"
+      ],
+      "timestamp": "2026-03-09",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-23",
+      "title": "Full-Length Mock Test 2",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week2",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-10",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-24",
+      "title": "Mock Test 2 Analysis",
+      "description": "Error analysis and revision",
+      "tags": [
+        "analysis",
+        "march-week2"
+      ],
+      "timestamp": "2026-03-11",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-25",
+      "title": "Full-Length Mock Test 3",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week2",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-12",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-26",
+      "title": "Mock Test 3 Analysis",
+      "description": "Error analysis and revision",
+      "tags": [
+        "analysis",
+        "march-week2"
+      ],
+      "timestamp": "2026-03-13",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-27",
+      "title": "Full-Length Mock Test 4",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week2",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-14",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-28",
+      "title": "Mock Test 4 Analysis",
+      "description": "Error analysis and revision",
+      "tags": [
+        "analysis",
+        "march-week3"
+      ],
+      "timestamp": "2026-03-15",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-29",
+      "title": "Full-Length Mock Test 5",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week3",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-16",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-30",
+      "title": "Mock Test 5 Analysis",
+      "description": "Error analysis and revision",
+      "tags": [
+        "analysis",
+        "march-week3"
+      ],
+      "timestamp": "2026-03-17",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-31",
+      "title": "Full-Length Mock Test 6",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week3",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-18",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-32",
+      "title": "Mock Test 6 Analysis",
+      "description": "Error analysis and revision",
+      "tags": [
+        "analysis",
+        "march-week3"
+      ],
+      "timestamp": "2026-03-19",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-33",
+      "title": "Full-Length Mock Test 7",
+      "description": "3-hour full syllabus mock",
+      "tags": [
+        "mock-test",
+        "march-week3",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-20",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-34",
+      "title": "Mock Test 7 Analysis",
+      "description": "Error analysis and revision",
+      "tags": [
+        "analysis",
+        "march-week3"
+      ],
+      "timestamp": "2026-03-21",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 4
+      }
+    },
+    {
+      "id": "task-35",
+      "title": "JEE Mains PYP 2024",
+      "description": "Previous year paper - timed attempt",
+      "tags": [
+        "pyp",
+        "march-week4",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-22",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-36",
+      "title": "JEE Mains PYP 2023",
+      "description": "Previous year paper - timed attempt",
+      "tags": [
+        "pyp",
+        "march-week4",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-23",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-37",
+      "title": "JEE Mains PYP 2022",
+      "description": "Previous year paper - timed attempt",
+      "tags": [
+        "pyp",
+        "march-week4",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-24",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-38",
+      "title": "JEE Mains PYP 2021",
+      "description": "Previous year paper - timed attempt",
+      "tags": [
+        "pyp",
+        "march-week4",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-25",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-39",
+      "title": "JEE Mains PYP 2020",
+      "description": "Previous year paper - timed attempt",
+      "tags": [
+        "pyp",
+        "march-week4",
+        "all-subjects"
+      ],
+      "timestamp": "2026-03-26",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "exam_simulation": true
+      }
+    },
+    {
+      "id": "task-40",
+      "title": "Formula Revision - Mathematics",
+      "description": "Quick revision of all formula sheets",
+      "tags": [
+        "mathematics",
+        "march-week4",
+        "revision"
+      ],
+      "timestamp": "2026-03-27",
+      "status": "todo",
+      "priority": "medium",
+      "meta": {
+        "focus_required": false,
+        "duration_hours": 2
+      }
+    },
+    {
+      "id": "task-41",
+      "title": "Formula Revision - Physics",
+      "description": "Quick revision of all formula sheets",
+      "tags": [
+        "physics",
+        "march-week4",
+        "revision"
+      ],
+      "timestamp": "2026-03-28",
+      "status": "todo",
+      "priority": "medium",
+      "meta": {
+        "focus_required": false,
+        "duration_hours": 2
+      }
+    },
+    {
+      "id": "task-42",
+      "title": "Organic Reactions One-Pagers",
+      "description": "Final revision of all organic reaction charts",
+      "tags": [
+        "chemistry",
+        "march-week4",
+        "revision"
+      ],
+      "timestamp": "2026-03-29",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 2
+      }
+    },
+    {
+      "id": "task-43",
+      "title": "Error Log Revision",
+      "description": "Go through all mistakes from mocks and PYPs",
+      "tags": [
+        "all-subjects",
+        "march-week4",
+        "revision"
+      ],
+      "timestamp": "2026-03-30",
+      "status": "todo",
+      "priority": "high",
+      "meta": {
+        "focus_required": true,
+        "duration_hours": 3
+      }
+    },
+    {
+      "id": "task-44",
+      "title": "Light Revision & Mental Prep",
+      "description": "Light touch-ups, no new topics, focus on confidence",
+      "tags": [
+        "all-subjects",
+        "march-week4",
+        "final-prep"
+      ],
+      "timestamp": "2026-03-31",
+      "status": "todo",
+      "priority": "medium",
+      "meta": {
+        "focus_required": false,
+        "duration_hours": 4,
+        "notes": "Rest well, stay confident"
+      }
+    }
+  ]
+}

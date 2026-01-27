@@ -1,0 +1,21 @@
+{
+  "theme": "light",
+  "sidebar_collapsed": false,
+  "tags": [
+    {
+      "id": "mathematics",
+      "name": "Mathematics",
+      "color": "#000000"
+    },
+    {
+      "id": "physics",
+      "name": "Physics",
+      "color": "#404040"
+    },
+    {
+      "id": "chemistry",
+      "name": "Chemistry",
+      "color": "#606060"
+    }
+  ]
+}
