@@ -1,0 +1,12 @@
+{
+  "sessions": [
+    {
+      "type": "stopwatch",
+      "startTime": "2026-01-27T14:49:00.197Z",
+      "endTime": "2026-01-27T14:49:16.495Z",
+      "duration": 1,
+      "id": "1",
+      "createdAt": "2026-01-27T14:49:17.558643"
+    }
+  ]
+}
