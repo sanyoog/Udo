@@ -9,6 +9,7 @@ const StudyTimer = () => {
   const [showHistory, setShowHistory] = useState(true);
   const [displayTime, setDisplayTime] = useState(0);
   const [timerStatus, setTimerStatus] = useState({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
+  const [expandedSession, setExpandedSession] = useState(null);
   
   // Pomodoro settings
   const [pomodoroSettings, setPomodoroSettings] = useState({
@@ -22,7 +23,7 @@ const StudyTimer = () => {
   useEffect(() => {
     loadSettings();
     loadSessions();
-    restoreTimerState();
+    loadActiveTimer();
     
     // Update timer every second
     const interval = setInterval(() => {
@@ -32,10 +33,34 @@ const StudyTimer = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const loadActiveTimer = async () => {
+    try {
+      const response = await fetch('/api/timer/active');
+      const data = await response.json();
+      
+      if (data.active || data.currentTime > 0) {
+        setMode(data.mode || 'pomodoro');
+        setDisplayTime(data.currentTime || 0);
+        setTimerStatus({
+          isRunning: data.active || false,
+          pomodoroState: data.pomodoroState || 'study',
+          sessionCount: data.sessionCount || 0
+        });
+      } else {
+        // No active timer - set initial display based on mode
+        if (mode === 'stopwatch') {
+          setDisplayTime(0);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load active timer:', error);
+    }
+  };
+
   // Sync state to localStorage whenever it changes
   useEffect(() => {
     if (mode === 'pomodoro' || mode === 'stopwatch') {
-      saveTimerState();
+      // No longer needed - server handles state
     }
   }, [mode]);
 
@@ -96,230 +121,150 @@ const StudyTimer = () => {
     }
   };
 
-  // Persistent timer state management
-  const saveTimerState = () => {
-    const state = localStorage.getItem('udo_timer_state');
-    if (state) {
-      localStorage.setItem('udo_timer_state', state);
-    }
-  };
-
-  const restoreTimerState = () => {
-    const saved = localStorage.getItem('udo_timer_state');
-    if (saved) {
-      try {
-        const state = JSON.parse(saved);
-        setMode(state.mode || 'pomodoro');
-      } catch (error) {
-        console.error('Failed to restore timer state:', error);
-      }
-    }
-  };
-
-  const getTimerState = () => {
-    const saved = localStorage.getItem('udo_timer_state');
-    if (!saved) return null;
+  // Server-side timer state management
+  const updateTimerDisplay = async () => {
     try {
-      return JSON.parse(saved);
-    } catch {
-      return null;
-    }
-  };
-
-  const setTimerState = (state) => {
-    localStorage.setItem('udo_timer_state', JSON.stringify(state));
-  };
-
-  const updateTimerDisplay = () => {
-    const state = getTimerState();
-    if (!state) {
-      setDisplayTime(mode === 'pomodoro' ? pomodoroSettings.studyTime * 60 : 0);
-      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
-      return;
-    }
-
-    setTimerStatus({
-      isRunning: state.isRunning || false,
-      pomodoroState: state.pomodoroState || 'study',
-      sessionCount: state.sessionCount || 0
-    });
-
-    if (!state.isRunning) {
-      if (state.mode === 'pomodoro') {
-        setDisplayTime(state.timeLeft || pomodoroSettings.studyTime * 60);
-      } else {
-        setDisplayTime(state.elapsed || 0);
-      }
-      return;
-    }
-
-    const now = Date.now();
-    const elapsed = Math.floor((now - state.lastUpdate) / 1000);
-    
-    if (elapsed < 1) return;
-
-    if (state.mode === 'pomodoro') {
-      const newTimeLeft = Math.max(0, state.timeLeft - elapsed);
-      setDisplayTime(newTimeLeft);
+      const response = await fetch('/api/timer/active');
+      const data = await response.json();
       
-      setTimerState({
-        ...state,
-        timeLeft: newTimeLeft,
-        lastUpdate: now
-      });
-
-      if (newTimeLeft === 0) {
-        handlePomodoroComplete(state);
+      if (data.active || data.currentTime > 0) {
+        setDisplayTime(data.currentTime || 0);
+        setTimerStatus({
+          isRunning: data.active || false,
+          pomodoroState: data.pomodoroState || 'study',
+          sessionCount: data.sessionCount || 0
+        });
+        
+        // Check if pomodoro completed
+        if (data.completed && data.mode === 'pomodoro') {
+          handlePomodoroComplete();
+        }
+      } else if (!timerStatus.isRunning) {
+        // Timer is not active, set to default
+        if (mode === 'pomodoro') {
+          setDisplayTime(pomodoroSettings.studyTime * 60);
+        }
       }
-    } else if (state.mode === 'stopwatch') {
-      const newElapsed = state.elapsed + elapsed;
-      setDisplayTime(newElapsed);
-      
-      setTimerState({
-        ...state,
-        elapsed: newElapsed,
-        lastUpdate: now
-      });
+    } catch (error) {
+      console.error('Failed to update timer:', error);
     }
   };
 
-  const handlePomodoroComplete = (state) => {
-    const newState = {
-      ...state,
-      isRunning: false,
-      sessionCount: state.sessionCount + 1
-    };
-
-    if (state.pomodoroState === 'study') {
-      newState.pomodoroState = 'break';
-      const isLongBreak = (state.sessionCount + 1) % pomodoroSettings.sessionsBeforeLongBreak === 0;
-      newState.timeLeft = isLongBreak ? pomodoroSettings.longBreakTime * 60 : pomodoroSettings.breakTime * 60;
-    } else {
-      newState.pomodoroState = 'study';
-      newState.timeLeft = pomodoroSettings.studyTime * 60;
-    }
-
-    setTimerState(newState);
-
+  const handlePomodoroComplete = async () => {
     // Notification
     if (window.Notification && Notification.permission === 'granted') {
       new Notification('Udo Timer', {
-        body: state.pomodoroState === 'study' ? 'Time for a break!' : 'Time to study!',
+        body: timerStatus.pomodoroState === 'study' ? 'Time for a break!' : 'Time to study!',
         icon: '/favicon.ico'
       });
     }
+    
+    // Auto-transition handled by server
+    await updateTimerDisplay();
   };
 
-  const startTimer = () => {
-    const state = getTimerState() || {};
-    const now = Date.now();
-
-    if (mode === 'pomodoro') {
-      const newState = {
-        mode: 'pomodoro',
-        isRunning: true,
-        timeLeft: state.timeLeft !== undefined ? state.timeLeft : pomodoroSettings.studyTime * 60,
-        pomodoroState: state.pomodoroState || 'study',
-        sessionCount: state.sessionCount || 0,
-        startTime: state.startTime || new Date().toISOString(),
-        lastUpdate: now
-      };
-      setTimerState(newState);
-      setTimerStatus({ isRunning: true, pomodoroState: newState.pomodoroState, sessionCount: newState.sessionCount });
-    } else {
-      const newState = {
-        mode: 'stopwatch',
-        isRunning: true,
-        elapsed: state.elapsed || 0,
-        startTime: state.startTime || new Date().toISOString(),
-        lastUpdate: now
-      };
-      setTimerState(newState);
-      setTimerStatus({ isRunning: true, pomodoroState: 'study', sessionCount: 0 });
+  const startTimer = async () => {
+    try {
+      const initialTime = mode === 'pomodoro' 
+        ? pomodoroSettings.studyTime * 60 
+        : 0;
+      
+      const response = await fetch('/api/timer/active', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: mode,
+          initialTime: initialTime,
+          pomodoroState: timerStatus.pomodoroState || 'study',
+          sessionCount: timerStatus.sessionCount || 0
+        })
+      });
+      
+      if (response.ok) {
+        setTimerStatus({ ...timerStatus, isRunning: true });
+        await updateTimerDisplay();
+      }
+    } catch (error) {
+      console.error('Failed to start timer:', error);
     }
   };
 
-  const pauseTimer = () => {
-    const state = getTimerState();
-    if (state) {
-      setTimerState({ ...state, isRunning: false });
-      setTimerStatus({ ...timerStatus, isRunning: false });
+  const pauseTimer = async () => {
+    try {
+      const response = await fetch('/api/timer/active', {
+        method: 'PUT'
+      });
+      
+      if (response.ok) {
+        setTimerStatus({ ...timerStatus, isRunning: false });
+        await updateTimerDisplay();
+      }
+    } catch (error) {
+      console.error('Failed to pause timer:', error);
     }
   };
 
   const endSession = async () => {
-    const state = getTimerState();
-    if (!state || !state.startTime) return;
+    try {
+      // Get current timer state
+      const response = await fetch('/api/timer/active');
+      const data = await response.json();
+      
+      if (!data.startTime) return;
 
-    let duration = 0;
-    if (mode === 'pomodoro') {
-      const initialTime = pomodoroSettings.studyTime * 60;
-      duration = initialTime - (state.timeLeft || initialTime);
-    } else {
-      duration = state.elapsed || 0;
-    }
+      let duration = 0;
+      if (mode === 'pomodoro') {
+        const initialTime = pomodoroSettings.studyTime * 60;
+        duration = initialTime - (data.currentTime || initialTime);
+      } else {
+        duration = data.currentTime || 0;
+      }
 
-    if (duration > 0) {
-      await saveSession({
-        type: mode,
-        mode: mode === 'pomodoro' ? state.pomodoroState : undefined,
-        startTime: state.startTime,
-        endTime: new Date().toISOString(),
-        duration: duration
-      });
-    }
+      if (duration > 0) {
+        await saveSession({
+          type: mode,
+          mode: mode === 'pomodoro' ? data.pomodoroState : undefined,
+          startTime: data.startTime,
+          endTime: new Date().toISOString(),
+          duration: duration
+        });
+      }
 
-    // Reset timer
-    localStorage.removeItem('udo_timer_state');
-    if (mode === 'pomodoro') {
-      const newState = {
-        mode: 'pomodoro',
-        isRunning: false,
-        timeLeft: pomodoroSettings.studyTime * 60,
-        pomodoroState: 'study',
-        sessionCount: 0
-      };
-      setTimerState(newState);
-      setDisplayTime(pomodoroSettings.studyTime * 60);
-      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
-    } else {
-      const newState = {
-        mode: 'stopwatch',
-        isRunning: false,
-        elapsed: 0
-      };
-      setTimerState(newState);
-      setDisplayTime(0);
-      setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
+      // Delete active timer on server
+      await fetch('/api/timer/active', { method: 'DELETE' });
+
+      // Reset display
+      if (mode === 'pomodoro') {
+        setDisplayTime(pomodoroSettings.studyTime * 60);
+        setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
+      } else {
+        setDisplayTime(0);
+        setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
+      }
+    } catch (error) {
+      console.error('Failed to end session:', error);
     }
   };
 
-  const changeMode = (newMode) => {
-    const oldState = getTimerState();
-    if (oldState && oldState.isRunning) {
-      pauseTimer();
+  const changeMode = async (newMode) => {
+    if (timerStatus.isRunning) {
+      await pauseTimer();
+    }
+    
+    // Delete any active timer
+    try {
+      await fetch('/api/timer/active', { method: 'DELETE' });
+    } catch (error) {
+      console.error('Failed to clear timer:', error);
     }
     
     setMode(newMode);
     
+    // Set display time immediately based on new mode
     if (newMode === 'pomodoro') {
-      const newState = {
-        mode: 'pomodoro',
-        isRunning: false,
-        timeLeft: pomodoroSettings.studyTime * 60,
-        pomodoroState: 'study',
-        sessionCount: 0
-      };
-      setTimerState(newState);
       setDisplayTime(pomodoroSettings.studyTime * 60);
       setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
     } else {
-      const newState = {
-        mode: 'stopwatch',
-        isRunning: false,
-        elapsed: 0
-      };
-      setTimerState(newState);
       setDisplayTime(0);
       setTimerStatus({ isRunning: false, pomodoroState: 'study', sessionCount: 0 });
     }
@@ -363,6 +308,19 @@ const StudyTimer = () => {
   const formatDate = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDateTime = (isoString) => {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    return date.toLocaleString([], { 
+      year: 'numeric',
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    });
   };
 
   const timeObj = formatTime(displayTime);
@@ -529,29 +487,83 @@ const StudyTimer = () => {
               ) : (
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                   {sessions.slice().reverse().map((session) => (
-                    <div key={session.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          {session.type === 'pomodoro' ? (
-                            <Timer className="w-4 h-4" />
-                          ) : (
-                            <Clock className="w-4 h-4" />
-                          )}
-                          <span className="text-sm font-medium">
-                            {session.type === 'pomodoro' ? 'Pomodoro' : 'Stopwatch'}
-                            {session.mode && ` (${session.mode})`}
-                          </span>
+                    <div key={session.id} className="border border-border rounded-lg overflow-hidden">
+                      {/* Session Header */}
+                      <div 
+                        onClick={() => setExpandedSession(expandedSession === session.id ? null : session.id)}
+                        className="flex items-center justify-between p-3 bg-secondary hover:bg-secondary/80 cursor-pointer transition-colors"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {session.type === 'pomodoro' ? (
+                              <Timer className="w-4 h-4" />
+                            ) : (
+                              <Clock className="w-4 h-4" />
+                            )}
+                            <span className="text-sm font-medium">
+                              {session.type === 'pomodoro' ? 'Pomodoro' : 'Stopwatch'}
+                              {session.mode && ` (${session.mode})`}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {formatDate(session.startTime)} • {formatDuration(session.duration)}
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatDate(session.startTime)} • {formatDuration(session.duration)}
+                        <div className="flex items-center gap-2">
+                          {expandedSession === session.id ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteSession(session.id);
+                            }}
+                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
                         </div>
                       </div>
-                      <button
-                        onClick={() => deleteSession(session.id)}
-                        className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
+                      
+                      {/* Expanded Details */}
+                      {expandedSession === session.id && (
+                        <div className="p-4 bg-card border-t border-border space-y-3">
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Type:</span>
+                              <p className="font-medium">{session.type === 'pomodoro' ? 'Pomodoro' : 'Stopwatch'}</p>
+                            </div>
+                            {session.mode && (
+                              <div>
+                                <span className="text-muted-foreground">Mode:</span>
+                                <p className="font-medium capitalize">{session.mode}</p>
+                              </div>
+                            )}
+                            <div>
+                              <span className="text-muted-foreground">Duration:</span>
+                              <p className="font-medium">{formatDuration(session.duration)}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Duration (min):</span>
+                              <p className="font-medium">{Math.round(session.duration / 60)} minutes</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Started:</span>
+                              <p className="font-medium text-xs">{formatDateTime(session.startTime)}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Ended:</span>
+                              <p className="font-medium text-xs">{formatDateTime(session.endTime)}</p>
+                            </div>
+                          </div>
+                          <div className="pt-2 border-t border-border">
+                            <span className="text-muted-foreground text-sm">Session ID:</span>
+                            <p className="text-xs font-mono">{session.id}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

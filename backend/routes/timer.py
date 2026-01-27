@@ -7,6 +7,7 @@ timer_bp = Blueprint('timer', __name__)
 
 TIMER_DATA_PATH = 'backend/userdata/timer_sessions.json'
 TIMER_SETTINGS_PATH = 'backend/userdata/timer_settings.json'
+ACTIVE_TIMER_PATH = 'backend/userdata/active_timer.json'
 
 def ensure_timer_files():
     """Ensure timer data files exist"""
@@ -27,6 +28,10 @@ def ensure_timer_files():
         }
         with open(TIMER_SETTINGS_PATH, 'w') as f:
             json.dump(default_settings, f)
+    
+    if not os.path.exists(ACTIVE_TIMER_PATH):
+        with open(ACTIVE_TIMER_PATH, 'w') as f:
+            json.dump({'active': False}, f)
 
 def get_timer_data():
     """Load timer sessions data"""
@@ -51,6 +56,100 @@ def save_timer_settings(settings):
     ensure_timer_files()
     with open(TIMER_SETTINGS_PATH, 'w') as f:
         json.dump(settings, f, indent=2)
+
+def get_active_timer():
+    """Load active timer state"""
+    ensure_timer_files()
+    with open(ACTIVE_TIMER_PATH, 'r') as f:
+        return json.load(f)
+
+def save_active_timer(timer_state):
+    """Save active timer state"""
+    ensure_timer_files()
+    with open(ACTIVE_TIMER_PATH, 'w') as f:
+        json.dump(timer_state, f, indent=2)
+
+def calculate_current_time(timer_state):
+    """Calculate current timer value based on start time"""
+    if not timer_state.get('active'):
+        return timer_state
+    
+    start_time = datetime.fromisoformat(timer_state['startTime'])
+    now = datetime.now()
+    elapsed_seconds = int((now - start_time).total_seconds())
+    
+    if timer_state['mode'] == 'pomodoro':
+        # Countdown timer
+        initial_time = timer_state.get('initialTime', 0)
+        current_time = max(0, initial_time - elapsed_seconds)
+        
+        timer_state['currentTime'] = current_time
+        
+        # Check if timer completed
+        if current_time == 0 and timer_state.get('pomodoroState') == 'study':
+            # Auto-advance to break (but keep timer paused)
+            timer_state['active'] = False
+            timer_state['completed'] = True
+    else:
+        # Stopwatch - count up
+        timer_state['currentTime'] = elapsed_seconds
+    
+    return timer_state
+
+@timer_bp.route('/api/timer/active', methods=['GET'])
+def get_active_timer_state():
+    """Get current active timer state with calculated time"""
+    try:
+        timer_state = get_active_timer()
+        timer_state = calculate_current_time(timer_state)
+        return jsonify(timer_state), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@timer_bp.route('/api/timer/active', methods=['POST'])
+def start_timer():
+    """Start or resume a timer"""
+    try:
+        data = request.json
+        mode = data.get('mode', 'pomodoro')
+        
+        timer_state = {
+            'active': True,
+            'mode': mode,
+            'startTime': datetime.now().isoformat(),
+            'sessionStartTime': data.get('sessionStartTime') or datetime.now().isoformat(),
+            'pomodoroState': data.get('pomodoroState', 'study'),
+            'sessionCount': data.get('sessionCount', 0),
+            'initialTime': data.get('initialTime', 0),  # For pomodoro countdown
+            'currentTime': data.get('initialTime', 0),
+            'completed': False
+        }
+        
+        save_active_timer(timer_state)
+        return jsonify(timer_state), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@timer_bp.route('/api/timer/active', methods=['PUT'])
+def pause_timer():
+    """Pause the active timer"""
+    try:
+        timer_state = get_active_timer()
+        timer_state = calculate_current_time(timer_state)
+        timer_state['active'] = False
+        save_active_timer(timer_state)
+        return jsonify(timer_state), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@timer_bp.route('/api/timer/active', methods=['DELETE'])
+def stop_timer():
+    """Stop and clear the active timer"""
+    try:
+        save_active_timer({'active': False})
+        return jsonify({'message': 'Timer stopped'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @timer_bp.route('/api/timer/sessions', methods=['GET'])
 def get_sessions():
