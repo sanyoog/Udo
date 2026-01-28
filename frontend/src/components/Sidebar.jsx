@@ -95,13 +95,13 @@ export function Sidebar({ pages, onPagesUpdate, collapsed, onToggleCollapse, the
           </Link>
 
           <Link
-            to="/timer"
+            to="/tracker"
             className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-              isActive('/timer') ? 'bg-secondary' : 'hover:bg-secondary/50'
+              isActive('/tracker') ? 'bg-secondary' : 'hover:bg-secondary/50'
             }`}
           >
             <Timer className="w-5 h-5" />
-            <span className="font-medium">Study Timer</span>
+            <span className="font-medium">Day Tracker</span>
           </Link>
 
           <Link

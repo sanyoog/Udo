@@ -5,7 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { AllTasks } from './pages/AllTasks';
 import { Settings } from './pages/Settings';
 import { PageBoard } from './pages/PageBoard';
-import StudyTimer from './pages/StudyTimer';
+import DayTracker from './pages/DayTracker';
 import Countdown from './pages/Countdown';
 import { api } from './api';
 
@@ -78,7 +78,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/all-tasks" element={<AllTasks />} />
-          <Route path="/timer" element={<StudyTimer />} />
+          <Route path="/tracker" element={<DayTracker />} />
           <Route path="/countdown" element={<Countdown />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/page/:pageId" element={<PageBoard />} />

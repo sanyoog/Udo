@@ -13,6 +13,7 @@ from backend.routes.tasks import tasks_bp
 from backend.routes.settings import settings_bp
 from backend.routes.timer import timer_bp
 from backend.routes.countdown import countdown_bp
+from backend.routes.daytracker import daytracker_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +27,7 @@ app.register_blueprint(tasks_bp, url_prefix='/api')
 app.register_blueprint(settings_bp, url_prefix='/api')
 app.register_blueprint(timer_bp)
 app.register_blueprint(countdown_bp)
+app.register_blueprint(daytracker_bp)
 
 # Serve React frontend
 FRONTEND_DIST = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
