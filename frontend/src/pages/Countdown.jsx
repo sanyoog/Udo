@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Calendar, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Topbar } from '../components/Topbar';
 
-const Countdown = () => {
+const Countdown = ({ theme, onThemeToggle }) => {
   const [events, setEvents] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
@@ -172,33 +172,34 @@ const Countdown = () => {
   const pastEvents = events.filter(e => new Date(e.targetDate) <= currentTime);
 
   return (
-    <div className="flex-1 flex flex-col">
-      <Topbar title="Event Countdown" />
+    <div className="flex-1 flex flex-col animate-fade-in">
+      <Topbar title="Event Countdown" theme={theme} onThemeToggle={onThemeToggle} />
 
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex-1 overflow-y-auto mobile-padding md:p-8">
+        <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
 
           {/* Add Event Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end animate-slide-down">
             <button
               onClick={() => {
                 setEditingEvent(null);
                 setFormData({ name: '', targetDate: '', description: '', color: '#3B82F6' });
                 setShowAddModal(true);
               }}
-              className="btn-primary flex items-center gap-2"
+              className="btn-primary flex items-center gap-2 mobile-text"
             >
               <Plus className="w-4 h-4" />
-              Add Event
+              <span className="hidden sm:inline">Add Event</span>
+              <span className="sm:hidden">Add</span>
             </button>
           </div>
 
           {/* Upcoming Events */}
           {upcomingEvents.length === 0 ? (
-            <div className="card p-20 text-center">
-              <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-xl font-medium mb-2">No upcoming events</h2>
-              <p className="text-muted-foreground mb-6">
+            <div className="card p-8 md:p-20 text-center animate-bounce-in">
+              <Calendar className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-muted-foreground animate-float" />
+              <h2 className="text-lg md:text-xl font-medium mb-2 mobile-text">No upcoming events</h2>
+              <p className="text-muted-foreground mb-6 mobile-text">
                 Create your first countdown event to track important dates
               </p>
               <button
@@ -209,30 +210,31 @@ const Countdown = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {upcomingEvents.map((event) => {
+            <div className="mobile-grid md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingEvents.map((event, index) => {
                 const timeLeft = calculateTimeLeft(event.targetDate, event.id);
                 return (
                   <div
                     key={event.id}
-                    className="card p-6"
+                    className="card p-4 md:p-6 animate-stagger-fade-in hover-lift"
                     style={{
                       borderTopColor: event.color,
-                      borderTopWidth: '3px'
+                      borderTopWidth: '3px',
+                      animationDelay: `${index * 0.1}s`
                     }}
                   >
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-lg font-semibold flex-1 pr-2">{event.name}</h3>
-                      <div className="flex gap-1">
+                      <h3 className="text-base md:text-lg font-semibold flex-1 pr-2 mobile-text">{event.name}</h3>
+                      <div className="flex gap-1 flex-shrink-0">
                         <button
                           onClick={() => handleEdit(event)}
-                          className="p-1.5 hover:bg-gray-100 rounded"
+                          className="p-1.5 hover:bg-secondary rounded transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => deleteEvent(event.id)}
-                          className="p-1.5 hover:bg-red-50 text-red-500 rounded"
+                          className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950 text-red-500 rounded transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -246,25 +248,25 @@ const Countdown = () => {
                     {/* Countdown Display */}
                     <div className="grid grid-cols-4 gap-2 mb-4">
                       <div className="text-center">
-                        <div className="text-3xl font-bold font-mono">
+                        <div className={`text-3xl font-bold font-mono ${prevTimes[event.id]?.days !== timeLeft.days ? 'digit-flip' : ''}`}>
                           {timeLeft.days}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Days</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold font-mono">
+                        <div className={`text-3xl font-bold font-mono ${prevTimes[event.id]?.hours !== timeLeft.hours ? 'digit-flip' : ''}`}>
                           {timeLeft.hours.toString().padStart(2, '0')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Hours</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold font-mono">
+                        <div className={`text-3xl font-bold font-mono ${prevTimes[event.id]?.minutes !== timeLeft.minutes ? 'digit-flip' : ''}`}>
                           {timeLeft.minutes.toString().padStart(2, '0')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Mins</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold font-mono">
+                        <div className={`text-3xl font-bold font-mono ${prevTimes[event.id]?.seconds !== timeLeft.seconds ? 'digit-flip' : ''}`}>
                           {timeLeft.seconds.toString().padStart(2, '0')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Secs</div>
@@ -284,37 +286,38 @@ const Countdown = () => {
 
           {/* Past Events */}
           {pastEvents.length > 0 && (
-            <div className="card p-6">
+            <div className="card p-4 md:p-6 animate-fade-in-up">
               <button
                 onClick={() => setShowPast(!showPast)}
-                className="flex items-center justify-between w-full"
+                className="flex items-center justify-between w-full mobile-text"
               >
                 <h3 className="font-semibold">Past Events ({pastEvents.length})</h3>
                 {showPast ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
               </button>
 
               {showPast && (
-                <div className="mt-4 space-y-2">
-                  {pastEvents.map((event) => (
+                <div className="mt-4 space-y-2 animate-slide-down">
+                  {pastEvents.map((event, index) => (
                     <div
                       key={event.id}
-                      className="flex items-center justify-between p-3 bg-secondary rounded-lg"
+                      className="flex items-center justify-between p-3 bg-secondary rounded-lg animate-stagger-fade-in"
+                      style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <div
-                            className="w-3 h-3 rounded-full"
+                            className="w-3 h-3 rounded-full flex-shrink-0"
                             style={{ backgroundColor: event.color }}
                           />
-                          <span className="font-medium">{event.name}</span>
+                          <span className="font-medium truncate mobile-text">{event.name}</span>
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground truncate">
                           {formatDate(event.targetDate)}
                         </div>
                       </div>
                       <button
                         onClick={() => deleteEvent(event.id)}
-                        className="p-2 hover:bg-red-50 rounded text-red-500"
+                        className="p-2 hover:bg-red-50 dark:hover:bg-red-950 text-red-500 rounded transition-colors flex-shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

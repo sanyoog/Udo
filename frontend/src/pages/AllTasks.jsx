@@ -3,7 +3,7 @@ import { Topbar } from '../components/Topbar';
 import { api } from '../api';
 import { Search } from 'lucide-react';
 
-export function AllTasks() {
+export function AllTasks({ theme, onThemeToggle }) {
   const [tasks, setTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,13 +64,13 @@ export function AllTasks() {
   }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <Topbar title="All Tasks" />
+    <div className="flex-1 flex flex-col animate-fade-in">
+      <Topbar title="All Tasks" theme={theme} onThemeToggle={onThemeToggle} />
       
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex-1 overflow-y-auto mobile-padding md:p-8">
+        <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 animate-slide-down">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input

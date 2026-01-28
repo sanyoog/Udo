@@ -4,7 +4,7 @@ import { Modal } from '../components/Modal';
 import { api } from '../api';
 import { Plus, Trash2, Download, Upload, Edit, Check, X } from 'lucide-react';
 
-export function Settings() {
+export function Settings({ theme, onThemeToggle }) {
   const [settings, setSettings] = useState(null);
   const [tags, setTags] = useState([]);
   const [showAddTagModal, setShowAddTagModal] = useState(false);
@@ -163,11 +163,11 @@ export function Settings() {
 
   return (
     <>
-      <div className="flex-1 flex flex-col">
-        <Topbar title="Settings" />
+      <div className="flex-1 flex flex-col animate-fade-in">
+        <Topbar title="Settings" theme={theme} onThemeToggle={onThemeToggle} />
         
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex-1 overflow-y-auto mobile-padding md:p-8">
+          <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
             {/* Theme Settings */}
             <div className="card p-6">
               <h3 className="text-lg font-semibold mb-4">Appearance</h3>

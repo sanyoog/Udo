@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { Topbar } from '../components/Topbar';
 
-const DayTracker = () => {
+const DayTracker = ({ theme, onThemeToggle }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [entries, setEntries] = useState([]);
@@ -194,15 +194,15 @@ const DayTracker = () => {
   const monthName = currentMonth.toLocaleDateString('default', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="flex-1 flex flex-col">
-      <Topbar title="Day Tracker" />
+    <div className="flex-1 flex flex-col animate-fade-in">
+      <Topbar title="Day Tracker" theme={theme} onThemeToggle={onThemeToggle} />
       
-      <div className="flex-1 overflow-hidden p-6">
-        <div className="h-full grid grid-cols-12 gap-6">
+      <div className="flex-1 overflow-hidden mobile-padding md:p-6">
+        <div className="h-full grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
           {/* Calendar Section */}
-          <div className="col-span-7 card p-6 overflow-y-auto">
+          <div className="col-span-1 lg:col-span-7 card p-4 md:p-6 overflow-y-auto animate-slide-down">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">{monthName}</h2>
+              <h2 className="text-lg md:text-xl font-semibold mobile-text">{monthName}</h2>
               <div className="flex gap-2">
                 <button onClick={previousMonth} className="btn-ghost p-2">
                   <ChevronLeft className="w-5 h-5" />
