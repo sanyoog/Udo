@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Topbar } from '../components/Topbar';
 import { api } from '../api';
-import { Kanban, Clock, Timer, Calendar } from 'lucide-react';
+import { Kanban, Clock, Timer, Calendar, BookOpen } from 'lucide-react';
 
 export function Dashboard() {
   const [pages, setPages] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [timerStats, setTimerStats] = useState(null);
+  const [dayTrackerStats, setDayTrackerStats] = useState(null);
   const [countdownStats, setCountdownStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,16 +16,20 @@ export function Dashboard() {
 
   const loadData = async () => {
     try {
-      const [pagesRes, tasksRes, timerRes, countdownRes] = await Promise.all([
+      // Get date range for last 30 days
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      const [pagesRes, tasksRes, dayTrackerRes, countdownRes] = await Promise.all([
         api.getPages(),
         api.getAllTasks(),
-        fetch('/api/timer/stats').then(r => r.json()).catch(() => null),
+        fetch(`/api/daytracker/stats/range?start=${startDate}&end=${endDate}`).then(r => r.json()).catch(() => null),
         fetch('/api/countdown/stats').then(r => r.json()).catch(() => null)
       ]);
       
       if (pagesRes.success) setPages(pagesRes.pages);
       if (tasksRes.success) setTasks(tasksRes.tasks);
-      setTimerStats(timerRes);
+      setDayTrackerStats(dayTrackerRes);
       setCountdownStats(countdownRes);
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -47,15 +51,6 @@ export function Dashboard() {
       completed: tasks.filter(t => t.status === 'completed').length,
       overdue: tasks.filter(t => t.status === 'overdue').length,
     };
-  };
-
-  const formatTime = (seconds) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    if (hrs > 0) {
-      return `${hrs}h ${mins}m`;
-    }
-    return `${mins}m`;
   };
 
   if (loading) {
@@ -115,36 +110,41 @@ export function Dashboard() {
             </div>
           )}
 
-          {/* Timer & Countdown Stats */}
+          {/* Day Tracker & Countdown Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Timer Stats */}
-            {timerStats && (
+            {/* Day Tracker Stats */}
+            {dayTrackerStats && (
               <div className="card p-6 animate-fade-in-up stagger-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <Timer className="w-6 h-6 text-blue-500" />
-                  <h3 className="text-lg font-semibold">Study Timer Stats</h3>
+                  <BookOpen className="w-6 h-6 text-blue-500" />
+                  <h3 className="text-lg font-semibold">Study Tracking (30 Days)</h3>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Sessions</span>
-                    <span className="font-semibold">{timerStats.totalSessions}</span>
+                    <span className="text-muted-foreground">Total Hours</span>
+                    <span className="font-semibold">{dayTrackerStats.totalHours}h</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Time</span>
-                    <span className="font-semibold">{formatTime(timerStats.totalTime)}</span>
+                    <span className="text-muted-foreground">Days Tracked</span>
+                    <span className="font-semibold">{dayTrackerStats.trackedDays}</span>
                   </div>
-                  {timerStats.recentSessions && timerStats.recentSessions.length > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Entries</span>
+                    <span className="font-semibold">{dayTrackerStats.totalEntries}</span>
+                  </div>
+                  {dayTrackerStats.subjectBreakdown && Object.keys(dayTrackerStats.subjectBreakdown).length > 0 && (
                     <div className="pt-3 border-t dark:border-gray-800">
-                      <div className="text-sm text-muted-foreground mb-2">Recent Sessions</div>
+                      <div className="text-sm text-muted-foreground mb-2">Top Subjects</div>
                       <div className="space-y-1">
-                        {timerStats.recentSessions.slice(0, 3).map((session, i) => (
-                          <div key={i} className="text-sm flex justify-between">
-                            <span className="text-muted-foreground">
-                              {new Date(session.startTime).toLocaleDateString()}
-                            </span>
-                            <span>{formatTime(session.duration)}</span>
-                          </div>
-                        ))}
+                        {Object.entries(dayTrackerStats.subjectBreakdown)
+                          .sort(([,a], [,b]) => b - a)
+                          .slice(0, 3)
+                          .map(([subject, minutes]) => (
+                            <div key={subject} className="text-sm flex justify-between">
+                              <span className="text-muted-foreground truncate mr-2">{subject}</span>
+                              <span>{Math.round(minutes / 60 * 10) / 10}h</span>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -157,27 +157,55 @@ export function Dashboard() {
               <div className="card p-6 animate-fade-in-up stagger-2">
                 <div className="flex items-center gap-3 mb-4">
                   <Calendar className="w-6 h-6 text-purple-500" />
-                  <h3 className="text-lg font-semibold">Upcoming Events</h3>
+                  <h3 className="text-lg font-semibold">Event Countdown</h3>
                 </div>
                 {countdownStats.upcomingEvents && countdownStats.upcomingEvents.length > 0 ? (
-                  <div className="space-y-3">
-                    {countdownStats.upcomingEvents.slice(0, 3).map((event, i) => (
-                      <div key={i} className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="font-medium">{event.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {event.daysLeft} day{event.daysLeft !== 1 ? 's' : ''} left
-                          </div>
-                        </div>
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: event.color }}
-                        />
+                  <div className="space-y-4">
+                    {/* Next Event Highlight */}
+                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <div className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-1">Next Event</div>
+                      <div className="font-semibold text-lg">{countdownStats.upcomingEvents[0].name}</div>
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {countdownStats.upcomingEvents[0].daysLeft} day{countdownStats.upcomingEvents[0].daysLeft !== 1 ? 's' : ''} left
                       </div>
-                    ))}
+                    </div>
+                    
+                    {/* Other Upcoming Events */}
+                    {countdownStats.upcomingEvents.slice(1, 4).length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-sm text-muted-foreground">Upcoming</div>
+                        {countdownStats.upcomingEvents.slice(1, 4).map((event, i) => (
+                          <div key={i} className="flex justify-between items-center text-sm">
+                            <div className="flex-1">
+                              <div className="font-medium truncate">{event.name}</div>
+                              <div className="text-muted-foreground">
+                                {event.daysLeft} day{event.daysLeft !== 1 ? 's' : ''} left
+                              </div>
+                            </div>
+                            <div
+                              className="w-3 h-3 rounded-full ml-2"
+                              style={{ backgroundColor: event.color }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="pt-2 border-t dark:border-gray-800">
+                      <div className="text-sm text-muted-foreground">
+                        Total Events: {countdownStats.totalEvents}
+                      </div>
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No upcoming events</p>
+                  <div className="text-center py-4">
+                    <Calendar className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">No upcoming events</p>
+                    <a href="/countdown" className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400">
+                      Create your first event →
+                    </a>
+                  </div>
                 )}
               </div>
             )}

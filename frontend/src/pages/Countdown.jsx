@@ -24,6 +24,23 @@ const Countdown = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Update prevTimes for animation
+    const newPrevTimes = {};
+    events.forEach(event => {
+      const target = new Date(event.targetDate);
+      const diff = target - currentTime;
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        newPrevTimes[event.id] = { days, hours, minutes, seconds };
+      }
+    });
+    setPrevTimes(newPrevTimes);
+  }, [currentTime, events]);
+
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/countdown/events');
@@ -122,7 +139,7 @@ const Countdown = () => {
         seconds: prev.seconds !== seconds
       };
 
-      setPrevTimes(p => ({ ...p, [eventId]: { days, hours, minutes, seconds } }));
+      // setPrevTimes(p => ({ ...p, [eventId]: { days, hours, minutes, seconds } })); // Removed to prevent infinite loop
 
       return { days, hours, minutes, seconds, isPast: false, changed };
     } catch (error) {
@@ -157,10 +174,10 @@ const Countdown = () => {
   return (
     <div className="flex-1 flex flex-col">
       <Topbar title="Event Countdown" />
-      
+
       <div className="flex-1 overflow-y-auto p-8">
         <div className="max-w-6xl mx-auto space-y-6">
-          
+
           {/* Add Event Button */}
           <div className="flex justify-end">
             <button
@@ -169,9 +186,9 @@ const Countdown = () => {
                 setFormData({ name: '', targetDate: '', description: '', color: '#3B82F6' });
                 setShowAddModal(true);
               }}
-              className="btn-primary"
+              className="btn-primary flex items-center gap-2"
             >
-              <Plus className="w-4 h-4 inline mr-2" />
+              <Plus className="w-4 h-4" />
               Add Event
             </button>
           </div>
@@ -209,13 +226,13 @@ const Countdown = () => {
                       <div className="flex gap-1">
                         <button
                           onClick={() => handleEdit(event)}
-                          className="p-1.5 hover:bg-secondary rounded transition-colors"
+                          className="p-1.5 hover:bg-gray-100 rounded"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => deleteEvent(event.id)}
-                          className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded transition-colors"
+                          className="p-1.5 hover:bg-red-50 text-red-500 rounded"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -223,31 +240,31 @@ const Countdown = () => {
                     </div>
 
                     {event.description && (
-                      <p className="text-sm text-muted-foreground mb-4">{event.description}</p>
+                      <p className="text-sm text-gray-600 mb-4">{event.description}</p>
                     )}
 
                     {/* Countdown Display */}
                     <div className="grid grid-cols-4 gap-2 mb-4">
                       <div className="text-center">
-                        <div className={`text-3xl font-bold font-mono ${timeLeft.changed?.days ? 'digit-flip' : ''}`}>
+                        <div className="text-3xl font-bold font-mono">
                           {timeLeft.days}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Days</div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-3xl font-bold font-mono ${timeLeft.changed?.hours ? 'digit-flip' : ''}`}>
+                        <div className="text-3xl font-bold font-mono">
                           {timeLeft.hours.toString().padStart(2, '0')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Hours</div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-3xl font-bold font-mono ${timeLeft.changed?.minutes ? 'digit-flip' : ''}`}>
+                        <div className="text-3xl font-bold font-mono">
                           {timeLeft.minutes.toString().padStart(2, '0')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Mins</div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-3xl font-bold font-mono ${timeLeft.changed?.seconds ? 'digit-flip' : ''}`}>
+                        <div className="text-3xl font-bold font-mono">
                           {timeLeft.seconds.toString().padStart(2, '0')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">Secs</div>
@@ -297,9 +314,9 @@ const Countdown = () => {
                       </div>
                       <button
                         onClick={() => deleteEvent(event.id)}
-                        className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                        className="p-2 hover:bg-red-50 rounded text-red-500"
                       >
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
@@ -311,7 +328,7 @@ const Countdown = () => {
           {/* Add/Edit Modal */}
           {showAddModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="card max-w-md w-full p-6">
+              <div className="bg-white rounded-lg w-full max-w-md p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold">
                     {editingEvent ? 'Edit Event' : 'Add New Event'}
@@ -321,7 +338,7 @@ const Countdown = () => {
                       setShowAddModal(false);
                       setEditingEvent(null);
                     }}
-                    className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 rounded-lg"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -370,11 +387,7 @@ const Countdown = () => {
                           key={color.value}
                           type="button"
                           onClick={() => setFormData({ ...formData, color: color.value })}
-                          className={`w-10 h-10 rounded-lg border-2 transition-all ${
-                            formData.color === color.value
-                              ? 'border-primary scale-110'
-                              : 'border-border'
-                          }`}
+                          className="w-10 h-10 rounded-lg border-2 border-gray-300"
                           style={{ backgroundColor: color.value }}
                           title={color.label}
                         />
